@@ -1,0 +1,12 @@
+{
+  "team1": "Équipe 1",
+  "team2": "Équipe 2",
+  "songs": [
+    {
+      "id": 1,
+      "artist": "Unknown",
+      "title": "kaaris zoo",
+      "youtubeId": "xX4Pxiwti4E"
+    }
+  ]
+}

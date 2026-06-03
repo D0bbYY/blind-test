@@ -679,17 +679,19 @@
 
             let playerHtml = '';
             if (song.youtubeId) {
-                // YouTube embed
+                // YouTube embed CACHÉ (juste l'audio)
                 playerHtml = `
-                    <div style="margin: 20px 0;">
+                    <div style="margin: 20px 0; background: #1a1a2e; padding: 40px; border-radius: 12px; text-align: center;">
+                        <p style="color: #999; font-size: 18px; margin-bottom: 20px;">🎵 Écoute...</p>
                         <iframe
-                            width="100%"
-                            height="300"
+                            width="0"
+                            height="0"
+                            style="display: none;"
                             src="https://www.youtube.com/embed/${song.youtubeId}?autoplay=1&start=0"
                             frameborder="0"
-                            allow="autoplay; encrypted-media"
-                            allowfullscreen>
+                            allow="autoplay; encrypted-media">
                         </iframe>
+                        <p style="color: #666; font-size: 14px;">La vidéo est cachée 🤐</p>
                     </div>
                 `;
             } else if (song.data) {
@@ -773,7 +775,34 @@
         function recordAnswer(team, points) {
             if (team === 1) team1Score += points;
             else team2Score += points;
-            skipSong();
+
+            // Afficher la réponse
+            const song = selectedSongs[currentSongIndex];
+            const teamName = team === 1 ? team1Name : team2Name;
+
+            const html = `
+                <div class="game-screen">
+                    <div style="background: rgba(255,255,255,0.1); padding: 60px 40px; border-radius: 20px; max-width: 600px; margin: 50px auto; text-align: center;">
+                        <h2 style="margin-bottom: 30px; font-size: 28px;">✓ ${teamName} gagne ${points} point${points > 1 ? 's' : ''}</h2>
+
+                        <div style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; margin-bottom: 30px;">
+                            <p style="font-size: 14px; color: #999; margin-bottom: 15px;">La bonne réponse:</p>
+                            <p style="font-size: 32px; color: #ffd700; font-weight: bold; margin-bottom: 10px;">${song.artist}</p>
+                            <p style="font-size: 28px; color: #fff;">« ${song.title} »</p>
+                        </div>
+
+                        <div style="display: flex; gap: 15px; justify-content: center;">
+                            <button style="flex: 1; padding: 15px; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 16px;" onclick="skipSong()">
+                                ➜ Chanson suivante
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('playContent').innerHTML = html;
+            timerActive = false;
+            clearInterval(timerInterval);
         }
 
         function skipSong() {
