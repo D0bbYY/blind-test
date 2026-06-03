@@ -45,19 +45,47 @@ def get_songs():
 
 @app.route('/api/songs', methods=['POST'])
 def add_song():
-    """Ajoute une chanson"""
+    """Ajoute une chanson (JSON ou FormData)"""
     try:
         data = load_database()
-        new_song = request.json
 
-        if 'artist' not in new_song or 'title' not in new_song or 'data' not in new_song:
-            return jsonify({"error": "Données manquantes"}), 400
+        # Si c'est du FormData (upload de fichier)
+        if 'file' in request.files:
+            file = request.files['file']
+            artist = request.form.get('artist', 'Unknown')
+            title = request.form.get('title', file.filename.replace('.mp3', ''))
 
-        new_song['id'] = len(data['songs']) + 1
-        data['songs'].append(new_song)
-        save_database(data)
+            if not file or file.filename == '':
+                return jsonify({"error": "Pas de fichier"}), 400
 
-        return jsonify({"success": True, "id": new_song['id']})
+            # Lire le fichier MP3
+            audio_data = list(file.read())
+
+            new_song = {
+                'id': len(data['songs']) + 1,
+                'artist': artist.strip(),
+                'title': title.strip(),
+                'data': audio_data
+            }
+
+            data['songs'].append(new_song)
+            save_database(data)
+
+            return jsonify({"success": True, "id": new_song['id']})
+
+        # Si c'est du JSON (ancien format)
+        else:
+            new_song = request.json
+
+            if 'artist' not in new_song or 'title' not in new_song or 'data' not in new_song:
+                return jsonify({"error": "Données manquantes"}), 400
+
+            new_song['id'] = len(data['songs']) + 1
+            data['songs'].append(new_song)
+            save_database(data)
+
+            return jsonify({"success": True, "id": new_song['id']})
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
