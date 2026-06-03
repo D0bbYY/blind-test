@@ -45,11 +45,11 @@ def get_songs():
 
 @app.route('/api/songs', methods=['POST'])
 def add_song():
-    """Ajoute une chanson (JSON ou FormData)"""
+    """Ajoute une chanson (YouTube, MP3, ou JSON)"""
     try:
         data = load_database()
 
-        # Si c'est du FormData (upload de fichier)
+        # Si c'est du FormData (upload de fichier MP3)
         if 'file' in request.files:
             file = request.files['file']
             artist = request.form.get('artist', 'Unknown')
@@ -73,14 +73,22 @@ def add_song():
 
             return jsonify({"success": True, "id": new_song['id']})
 
-        # Si c'est du JSON (ancien format)
+        # Si c'est du JSON (YouTube ou ancien format)
         else:
             new_song = request.json
 
-            if 'artist' not in new_song or 'title' not in new_song or 'data' not in new_song:
-                return jsonify({"error": "Données manquantes"}), 400
+            if 'artist' not in new_song or 'title' not in new_song:
+                return jsonify({"error": "Artiste ou titre manquant"}), 400
 
             new_song['id'] = len(data['songs']) + 1
+
+            # Si c'est un lien YouTube
+            if 'youtubeId' in new_song:
+                new_song.pop('data', None)  # Pas besoin du fichier
+            # Si c'est du JSON avec données audio
+            elif 'data' not in new_song:
+                return jsonify({"error": "Données manquantes"}), 400
+
             data['songs'].append(new_song)
             save_database(data)
 

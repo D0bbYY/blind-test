@@ -405,24 +405,26 @@
         <!-- MANAGE -->
         <div id="manage" class="tab-content">
             <div class="upload-area">
-                <h2>📤 Ajouter des extraits</h2>
+                <h2>🎥 Ajouter des chansons YouTube</h2>
 
-                <div style="margin-bottom: 20px;">
-                    <input type="file" id="fileInput" accept=".mp3" multiple style="display: none;">
-                    <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()" style="width: 100%; margin-bottom: 15px; padding: 20px; font-size: 18px;">
-                        + Sélectionner des MP3
+                <div style="background: #f8f9ff; padding: 25px; border-radius: 12px; margin-bottom: 25px;">
+                    <p style="margin-bottom: 15px; color: #333; font-weight: 600;">📝 Remplis les infos:</p>
+
+                    <div style="margin-bottom: 15px;">
+                        <input type="text" id="youtubeUrl" placeholder="Lien YouTube: https://www.youtube.com/watch?v=..." style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px;">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                        <input type="text" id="artistName" placeholder="Artiste (ex: Queen)" style="padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px;">
+                        <input type="text" id="songTitle" placeholder="Titre (ex: Bohemian Rhapsody)" style="padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px;">
+                    </div>
+
+                    <button class="btn btn-primary" onclick="addYouTubeSong()" style="width: 100%; padding: 15px; font-size: 16px;">
+                        ✓ Ajouter la chanson
                     </button>
                 </div>
 
-                <p style="text-align: center; color: #666; margin-bottom: 20px;">Ou glisse-dépose:</p>
-
-                <div class="drag-drop-zone" id="dragDropZone">
-                    <p style="font-size: 24px; margin-bottom: 10px;">📁</p>
-                    <p>Glisse tes fichiers MP3 ici</p>
-                    <small>Format: MP3 uniquement</small>
-                </div>
-
-                <div id="uploadStatus" style="margin-top: 20px; text-align: center; display: none; padding: 15px; background: #f0f2ff; border-radius: 8px;">
+                <div id="uploadStatus" style="margin-bottom: 20px; text-align: center; display: none; padding: 15px; background: #f0f2ff; border-radius: 8px;">
                     <p id="uploadMsg" style="color: #667eea; font-weight: 600;"></p>
                 </div>
             </div>
@@ -490,55 +492,56 @@
             }
         }
 
-        async function uploadSong(file) {
+        async function addYouTubeSong() {
+            const url = document.getElementById('youtubeUrl').value.trim();
+            const artist = document.getElementById('artistName').value.trim();
+            const title = document.getElementById('songTitle').value.trim();
+
+            if (!url || !artist || !title) {
+                alert('Remplis tous les champs!');
+                return;
+            }
+
+            // Extraire l'ID YouTube
+            let videoId = '';
+            if (url.includes('youtube.com/watch?v=')) {
+                videoId = url.split('v=')[1].split('&')[0];
+            } else if (url.includes('youtu.be/')) {
+                videoId = url.split('youtu.be/')[1].split('?')[0];
+            } else {
+                alert('Lien YouTube invalide!');
+                return;
+            }
+
             const statusDiv = document.getElementById('uploadStatus');
             const msgDiv = document.getElementById('uploadMsg');
             statusDiv.style.display = 'block';
-
-            const songName = file.name.replace('.mp3', '');
-            const [artist, title] = songName.includes(' - ')
-                ? songName.split(' - ')
-                : [songName, ''];
-
-            msgDiv.textContent = `📤 Upload: ${artist} - ${title}...`;
+            msgDiv.textContent = `⏳ Ajout: ${artist} - ${title}...`;
             msgDiv.style.color = '#667eea';
 
             try {
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('artist', artist.trim());
-                formData.append('title', title.trim());
-
-                const xhr = new XMLHttpRequest();
-
-                // Barre de progression
-                xhr.upload.addEventListener('progress', (e) => {
-                    if (e.lengthComputable) {
-                        const percentComplete = (e.loaded / e.total) * 100;
-                        msgDiv.textContent = `📤 Upload: ${Math.round(percentComplete)}% - ${artist} - ${title}`;
-                    }
+                const response = await fetch('/api/songs', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        artist: artist,
+                        title: title,
+                        youtubeId: videoId
+                    })
                 });
 
-                xhr.addEventListener('load', () => {
-                    if (xhr.status === 200) {
-                        msgDiv.textContent = `✓ ${artist} - ${title} ajouté!`;
-                        msgDiv.style.color = '#51cf66';
-                        loadData();
-                        setTimeout(() => {
-                            statusDiv.style.display = 'none';
-                            msgDiv.style.color = '#667eea';
-                        }, 1500);
-                    }
-                });
-
-                xhr.addEventListener('error', () => {
-                    msgDiv.textContent = `✗ Erreur upload`;
-                    msgDiv.style.color = '#ff6b6b';
-                });
-
-                xhr.open('POST', '/api/songs');
-                xhr.send(formData);
-
+                if (response.ok) {
+                    msgDiv.textContent = `✓ ${artist} - ${title} ajouté!`;
+                    msgDiv.style.color = '#51cf66';
+                    document.getElementById('youtubeUrl').value = '';
+                    document.getElementById('artistName').value = '';
+                    document.getElementById('songTitle').value = '';
+                    loadData();
+                    setTimeout(() => {
+                        statusDiv.style.display = 'none';
+                        msgDiv.style.color = '#667eea';
+                    }, 1500);
+                }
             } catch (err) {
                 msgDiv.textContent = `✗ Erreur: ${err}`;
                 msgDiv.style.color = '#ff6b6b';
@@ -673,8 +676,34 @@
 
         function renderGame() {
             const song = selectedSongs[currentSongIndex];
-            const audioBlob = new Blob([new Uint8Array(song.data)], {type: 'audio/mp3'});
-            const audioUrl = URL.createObjectURL(audioBlob);
+
+            let playerHtml = '';
+            if (song.youtubeId) {
+                // YouTube embed
+                playerHtml = `
+                    <div style="margin: 20px 0;">
+                        <iframe
+                            width="100%"
+                            height="300"
+                            src="https://www.youtube.com/embed/${song.youtubeId}?autoplay=1&start=0"
+                            frameborder="0"
+                            allow="autoplay; encrypted-media"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                `;
+            } else if (song.data) {
+                // Ancien format MP3
+                const audioBlob = new Blob([new Uint8Array(song.data)], {type: 'audio/mp3'});
+                const audioUrl = URL.createObjectURL(audioBlob);
+                playerHtml = `
+                    <div class="audio-player">
+                        <audio controls autoplay>
+                            <source src="${audioUrl}" type="audio/mpeg">
+                        </audio>
+                    </div>
+                `;
+            }
 
             document.getElementById('playContent').innerHTML = `
                 <div class="game-screen">
@@ -692,11 +721,7 @@
 
                     <div class="game-content">
                         <div class="question">🎵 Artiste + Titre?</div>
-                        <div class="audio-player">
-                            <audio controls autoplay>
-                                <source src="${audioUrl}" type="audio/mpeg">
-                            </audio>
-                        </div>
+                        ${playerHtml}
                         <div class="timer">${timer}</div>
                     </div>
 
