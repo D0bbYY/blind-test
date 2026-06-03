@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blind Test Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            background: #f0f0f0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .startup-screen {
+            background: white;
+            border-radius: 20px;
+            padding: 60px 40px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            margin: 50px auto;
+        }
+
+        .startup-screen h1 {
+            color: #667eea;
+            font-size: 48px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 100%;
+            padding: 15px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-danger {
+            background: #ff6b6b;
+            color: white;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .upload-area {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-area h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .drag-drop-zone {
+            border: 3px dashed #667eea;
+            border-radius: 12px;
+            padding: 60px 20px;
+            text-align: center;
+            background: #f8f9ff;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 30px;
+        }
+
+        .drag-drop-zone:hover {
+            background: #f0f2ff;
+            border-color: #764ba2;
+        }
+
+        .drag-drop-zone.dragover {
+            background: #e8eaff;
+            border-color: #764ba2;
+            transform: scale(1.02);
+        }
+
+        .songs-list {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .songs-list h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .song-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .song-info {
+            flex: 1;
+        }
+
+        .song-info p:first-child {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .game-screen {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            min-height: calc(100vh - 100px);
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .team-score {
+            flex: 1;
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            margin: 0 10px;
+        }
+
+        .team-score h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .team-score .score {
+            font-size: 48px;
+            font-weight: bold;
+        }
+
+        .game-content {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 60px 40px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+        }
+
+        .question {
+            font-size: 28px;
+            margin-bottom: 40px;
+            font-weight: 600;
+        }
+
+        .audio-player {
+            margin: 30px 0;
+        }
+
+        .audio-player audio {
+            width: 100%;
+            max-width: 500px;
+            height: 50px;
+        }
+
+        .timer {
+            font-size: 72px;
+            font-weight: bold;
+            margin: 30px 0;
+            color: #ffd700;
+        }
+
+        .timer.danger {
+            color: #ff6b6b;
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .game-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .answer-btn {
+            padding: 15px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .answer-btn.team1 {
+            background: #51cf66;
+            color: white;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .answer-btn.team2 {
+            background: #ff922b;
+            color: white;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .answer-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .answer-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .results-screen {
+            background: white;
+            border-radius: 20px;
+            padding: 60px 40px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            margin: 50px auto;
+        }
+
+        .results-screen h1 {
+            color: #667eea;
+            font-size: 48px;
+            margin-bottom: 40px;
+        }
+
+        .results-table {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+        }
+
+        .result-card .score {
+            font-size: 64px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .result-card.winner {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #333;
+            transform: scale(1.05);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: #f8f9ff;
+            border-radius: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .game-buttons {
+                flex-direction: column;
+            }
+
+            .answer-btn {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('setup')">⚙️ Configuration</button>
+            <button class="tab-btn" onclick="switchTab('manage')">📁 Gestion</button>
+            <button class="tab-btn" onclick="switchTab('play')">🎮 Jouer</button>
+        </div>
+
+        <!-- SETUP -->
+        <div id="setup" class="tab-content active">
+            <div class="startup-screen">
+                <h1>🎵 Blind Test</h1>
+                <p>Configure les noms de tes équipes</p>
+
+                <div class="input-group">
+                    <label>Équipe 1</label>
+                    <input type="text" id="team1Input" placeholder="Équipe 1">
+                </div>
+
+                <div class="input-group">
+                    <label>Équipe 2</label>
+                    <input type="text" id="team2Input" placeholder="Équipe 2">
+                </div>
+
+                <button class="btn btn-primary" onclick="saveTeams()">✓ Enregistrer</button>
+                <p id="confirmMsg" style="color: #51cf66; margin-top: 20px; display: none;">✓ Enregistré!</p>
+            </div>
+        </div>
+
+        <!-- MANAGE -->
+        <div id="manage" class="tab-content">
+            <div class="upload-area">
+                <h2>📤 Ajouter des extraits</h2>
+                <div class="drag-drop-zone" id="dragDropZone">
+                    <p>📁 Glisse tes fichiers MP3 ici</p>
+                    <small>ou clique pour sélectionner</small>
+                    <input type="file" id="fileInput" accept=".mp3" multiple style="display: none;">
+                </div>
+            </div>
+
+            <div class="songs-list">
+                <h2>🎵 Chansons</h2>
+                <div id="songsList">
+                    <div class="empty-state">
+                        <p>Aucune chanson</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PLAY -->
+        <div id="play" class="tab-content">
+            <div id="playContent"></div>
+        </div>
+    </div>
+
+    <script>
+        let songs = [];
+        let team1Name = 'Équipe 1';
+        let team2Name = 'Équipe 2';
+        let selectedSongs = [];
+        let currentSongIndex = 0;
+        let team1Score = 0;
+        let team2Score = 0;
+        let timer = 0;
+        let timerInterval = null;
+        let timerActive = false;
+
+        // API
+        async function loadData() {
+            try {
+                const response = await fetch('/api/songs');
+                const data = await response.json();
+                songs = data.songs || [];
+                team1Name = data.team1 || 'Équipe 1';
+                team2Name = data.team2 || 'Équipe 2';
+                document.getElementById('team1Input').value = team1Name;
+                document.getElementById('team2Input').value = team2Name;
+                updateSongsList();
+            } catch (err) {
+                console.error('Erreur:', err);
+            }
+        }
+
+        async function saveTeams() {
+            const team1 = document.getElementById('team1Input').value || 'Équipe 1';
+            const team2 = document.getElementById('team2Input').value || 'Équipe 2';
+
+            try {
+                await fetch('/api/teams', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ team1, team2 })
+                });
+                team1Name = team1;
+                team2Name = team2;
+                document.getElementById('confirmMsg').style.display = 'block';
+                setTimeout(() => document.getElementById('confirmMsg').style.display = 'none', 3000);
+            } catch (err) {
+                alert('Erreur: ' + err);
+            }
+        }
+
+        async function uploadSong(file) {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const audioData = Array.from(new Uint8Array(e.target.result));
+                const songName = file.name.replace('.mp3', '');
+                const [artist, title] = songName.includes(' - ')
+                    ? songName.split(' - ')
+                    : [songName, ''];
+
+                try {
+                    await fetch('/api/songs', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            artist: artist.trim(),
+                            title: title.trim(),
+                            data: audioData
+                        })
+                    });
+                    loadData();
+                } catch (err) {
+                    alert('Erreur upload: ' + err);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        async function deleteSong(id) {
+            if (confirm('Supprimer cette chanson?')) {
+                try {
+                    await fetch(`/api/songs/${id}`, { method: 'DELETE' });
+                    loadData();
+                } catch (err) {
+                    alert('Erreur: ' + err);
+                }
+            }
+        }
+
+        function updateSongsList() {
+            const list = document.getElementById('songsList');
+            if (songs.length === 0) {
+                list.innerHTML = '<div class="empty-state"><p>Aucune chanson</p></div>';
+                return;
+            }
+
+            list.innerHTML = songs.map((song, idx) => `
+                <div class="song-item">
+                    <div class="song-info">
+                        <p>${idx + 1}. ${song.artist} - ${song.title}</p>
+                    </div>
+                    <button class="btn btn-danger" onclick="deleteSong(${song.id})">✕</button>
+                </div>
+            `).join('');
+        }
+
+        // Upload
+        const dragZone = document.getElementById('dragDropZone');
+        dragZone.addEventListener('click', () => document.getElementById('fileInput').click());
+        dragZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dragZone.classList.add('dragover');
+        });
+        dragZone.addEventListener('dragleave', () => dragZone.classList.remove('dragover'));
+        dragZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dragZone.classList.remove('dragover');
+            Array.from(e.dataTransfer.files).forEach(uploadSong);
+        });
+
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            Array.from(e.target.files).forEach(uploadSong);
+        });
+
+        // Tabs
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tab).classList.add('active');
+            document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+
+            if (tab === 'play') showSongSelection();
+            if (tab === 'manage') loadData();
+        }
+
+        // Game
+        function showSongSelection() {
+            if (songs.length === 0) {
+                document.getElementById('playContent').innerHTML = '<div class="startup-screen"><p>Ajoute des chansons d\'abord! 🎵</p></div>';
+                return;
+            }
+
+            let html = `
+                <div style="background: white; border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); max-width: 700px; margin: 30px auto;">
+                    <h2 style="color: #667eea; margin-bottom: 30px;">🎵 Sélectionne les chansons</h2>
+                    <div style="background: #f8f9ff; padding: 20px; border-radius: 12px; margin-bottom: 20px; max-height: 400px; overflow-y: auto;">
+            `;
+
+            songs.forEach((song, idx) => {
+                html += `
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                        <input type="checkbox" id="song_${idx}" checked style="width: 20px; height: 20px; margin-right: 15px;">
+                        <label for="song_${idx}" style="cursor: pointer; flex: 1;">
+                            <span style="font-weight: 600;">${song.artist} - ${song.title}</span>
+                        </label>
+                    </div>
+                `;
+            });
+
+            html += `
+                    </div>
+                    <button class="btn btn-primary" onclick="startGame()" style="width: 100%;">🎮 Démarrer!</button>
+                </div>
+            `;
+
+            document.getElementById('playContent').innerHTML = html;
+        }
+
+        function startGame() {
+            selectedSongs = [];
+            songs.forEach((song, idx) => {
+                if (document.getElementById(`song_${idx}`).checked) {
+                    selectedSongs.push(song);
+                }
+            });
+
+            if (selectedSongs.length === 0) {
+                alert('Sélectionne au moins une chanson!');
+                return;
+            }
+
+            team1Score = 0;
+            team2Score = 0;
+            currentSongIndex = 0;
+            startRound();
+        }
+
+        function startRound() {
+            clearInterval(timerInterval);
+            timer = 20;
+            timerActive = true;
+            renderGame();
+
+            timerInterval = setInterval(() => {
+                timer--;
+                document.querySelector('.timer').textContent = timer;
+                document.querySelector('.timer').classList.toggle('danger', timer <= 5);
+                if (timer === 0) {
+                    clearInterval(timerInterval);
+                    timerActive = false;
+                }
+            }, 1000);
+        }
+
+        function renderGame() {
+            const song = selectedSongs[currentSongIndex];
+            const audioBlob = new Blob([new Uint8Array(song.data)], {type: 'audio/mp3'});
+            const audioUrl = URL.createObjectURL(audioBlob);
+
+            document.getElementById('playContent').innerHTML = `
+                <div class="game-screen">
+                    <div class="game-header">
+                        <div class="team-score" style="background: rgba(81, 207, 102, 0.3);">
+                            <h3>${team1Name}</h3>
+                            <div class="score">${team1Score}</div>
+                        </div>
+                        <div style="flex: 1; text-align: center;"><h2>${currentSongIndex + 1} / ${selectedSongs.length}</h2></div>
+                        <div class="team-score" style="background: rgba(255, 146, 43, 0.3);">
+                            <h3>${team2Name}</h3>
+                            <div class="score">${team2Score}</div>
+                        </div>
+                    </div>
+
+                    <div class="game-content">
+                        <div class="question">🎵 Artiste + Titre?</div>
+                        <div class="audio-player">
+                            <audio controls autoplay>
+                                <source src="${audioUrl}" type="audio/mpeg">
+                            </audio>
+                        </div>
+                        <div class="timer">${timer}</div>
+                    </div>
+
+                    <div class="game-buttons">
+                        <button class="answer-btn team1" onclick="showAnswerForm(1)" ${!timerActive ? 'disabled' : ''}>
+                            ${team1Name} répond! ✓
+                        </button>
+                        <button class="answer-btn team2" onclick="showAnswerForm(2)" ${!timerActive ? 'disabled' : ''}>
+                            ${team2Name} répond! ✓
+                        </button>
+                    </div>
+
+                    <div class="game-buttons" style="margin-top: 15px;">
+                        <button class="answer-btn" style="background: rgba(255, 255, 255, 0.3); flex: 1;" onclick="skipSong()">
+                            Passer
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showAnswerForm(team) {
+            timerActive = false;
+            const teamName = team === 1 ? team1Name : team2Name;
+
+            const html = `
+                <div class="game-screen">
+                    <div style="background: rgba(255,255,255,0.1); padding: 40px; border-radius: 20px; max-width: 500px; margin: 50px auto; text-align: center;">
+                        <h2 style="margin-bottom: 40px; font-size: 32px;">🎵 ${teamName}</h2>
+
+                        <button class="answer-btn team1" onclick="recordAnswer(${team}, 3)" style="width: 100%; margin-bottom: 15px; padding: 20px; font-size: 20px; background: linear-gradient(135deg, #51cf66, #40c057);">
+                            ✓✓ 3 Points (Artiste + Titre)
+                        </button>
+
+                        <button class="answer-btn team1" onclick="recordAnswer(${team}, 1)" style="width: 100%; margin-bottom: 15px; padding: 20px; font-size: 20px; background: linear-gradient(135deg, #ffc107, #ffb300);">
+                            ✓ 1 Point (Partiel)
+                        </button>
+
+                        <button style="width: 100%; padding: 20px; font-size: 20px; background: rgba(255, 255, 255, 0.3); border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: 600;" onclick="skipSong()">
+                            → Chanson suivante
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('playContent').innerHTML = html;
+        }
+
+        function recordAnswer(team, points) {
+            if (team === 1) team1Score += points;
+            else team2Score += points;
+            skipSong();
+        }
+
+        function skipSong() {
+            timerActive = false;
+            clearInterval(timerInterval);
+            if (currentSongIndex < selectedSongs.length - 1) {
+                currentSongIndex++;
+                setTimeout(() => startRound(), 500);
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            const isTeam1Winner = team1Score > team2Score;
+            const isTeam2Winner = team2Score > team1Score;
+
+            const html = `
+                <div class="results-screen">
+                    <h1>🏆 Résultats</h1>
+                    <div class="results-table">
+                        <div class="result-card ${isTeam1Winner ? 'winner' : ''}">
+                            <h2>${team1Name}</h2>
+                            <div class="score">${team1Score}</div>
+                            <p>${isTeam1Winner ? '🥇 Champion!' : ''}</p>
+                        </div>
+                        <div class="result-card ${isTeam2Winner ? 'winner' : ''}">
+                            <h2>${team2Name}</h2>
+                            <div class="score">${team2Score}</div>
+                            <p>${isTeam2Winner ? '🥇 Champion!' : ''}</p>
+                        </div>
+                    </div>
+                    ${team1Score === team2Score ? '<p style="font-size: 24px; margin-bottom: 30px;">🤝 Égalité!</p>' : ''}
+                    <button class="btn btn-primary" onclick="switchTab('play')" style="max-width: 300px;">Rejouer</button>
+                </div>
+            `;
+
+            document.getElementById('playContent').innerHTML = html;
+        }
+
+        // Init
+        loadData();
+    </script>
+</body>
+</html>
